@@ -3,6 +3,12 @@ const express = require("express");
 const db = require('./db/connection');
 const app = express();
 
+const PORT = process.env.PORT || 3001;
+
+// Express middleware
+app.use(express.urlencoded({ extended: false }));
+app.use(express.json());
+
 function init() {
     function options() {
         inquirer.prompt([
@@ -143,3 +149,12 @@ function updateRoll() {
 };
 
 init();
+
+// Start server after DB connection
+db.connect(err => {
+    if (err) throw err;
+    console.log('Database connected.');
+    app.listen(PORT, () => {
+        console.log(`Server running on port ${PORT}`);
+    });
+});
