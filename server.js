@@ -77,34 +77,63 @@ function addDepartment() {
         })
 };
 function addRoll() {
-    inquirer.prompt({
-        type: "input",
-        name: "roll",
-        message: "Add a roll"
-    })
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "role",
+            message: "Add the name of the roll"
+        },
+        {
+            type: "input",
+            name: "roleSalary",
+            message: "Add the salary for this role"
+        },
+        {
+            type: "input",
+            name: "roleDepartment",
+            message: "Enter the department id for this role"
+        }
+    ])
         .then(function (result) {
-            db.query(`INSERT INTO rolls ?`, result, (req, res) => {
+            db.query(`INSERT INTO roles ?`, result, (req, res) => {
                 console.table(res);
             });
         })
 };
 function addEmployee() {
-    inquirer.prompt({
-        type: "input",
-        name: "employee",
-        message: "Add employee name"
-    })
+    inquirer.prompt([
+        {
+            type: "input",
+            name: "employeeFirst",
+            message: "Add employee's first name"
+        },
+        {
+            type: "input",
+            name: "employeeLast",
+            message: "Add employee's last name"
+        },
+        {
+            type: "input",
+            name: "employeeRole",
+            message: "Add employee's role"
+        },
+        {
+            type: "input",
+            name: "employeeManager",
+            message: "Add the manager's id that this employee will report to",
+        },
+    ])
         .then(function (result) {
             db.query(`INSERT INTO employees ?`, result, (req, res) => {
                 console.table(res);
             });
         })
 };
-function updateRoll(){
+function updateRoll() {
     inquirer.prompt({
         type: "choices",
         name: "roll",
-        message: "Update employee roll"
+        message: "Update employee role"
     })
         .then(function (result) {
             db.query(`INSERT INTO departments ?`, result, (req, res) => {

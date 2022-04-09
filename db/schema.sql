@@ -20,6 +20,8 @@ CREATE TABLE employees (
     first_name VARCHAR(30) NOT NULL,
     last_name VARCHAR(30) NOT NULL,
     role_id INTEGER NOT NULL,
+    salary_id INTEGER NOT NULL,
     CONSTRAINT fk_roll_id FOREIGN KEY (role_id) REFERENCES roles(id),
     CONSTRAINT fk_title_id FOREIGN KEY (id) REFERENCES roles(title),
+    CONSTRAINT fk_salary FOREIGN KEY (salary_id) REFERENCES roles(salary),
 );
