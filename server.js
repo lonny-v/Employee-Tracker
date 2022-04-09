@@ -49,12 +49,68 @@ function init() {
     }
 }
 
-viewDepartments();
-viewRoles();
-viewEmployees();
-addDepartment();
-addRoll();
-addEmployee();
-updateRoll();
+function viewDepartments() {
+    db.query(`SELECT * FROM departments`, (req, res) => {
+        console.table(res);
+    })
+};
+function viewRoles() {
+    db.query(`SELECT * FROM roles`, (req, res) => {
+        console.table(res);
+    });
+};
+function viewEmployees() {
+    db.query(`SELECT * FROM demployees`, (req, res) => {
+        console.table(res);
+    });
+};
+function addDepartment() {
+    inquirer.prompt({
+        type: "input",
+        name: "department",
+        message: "Add department name"
+    })
+        .then(function (result) {
+            db.query(`INSERT INTO departments ?`, result, (req, res) => {
+                console.table(res);
+            });
+        })
+};
+function addRoll() {
+    inquirer.prompt({
+        type: "input",
+        name: "roll",
+        message: "Add a roll"
+    })
+        .then(function (result) {
+            db.query(`INSERT INTO rolls ?`, result, (req, res) => {
+                console.table(res);
+            });
+        })
+};
+function addEmployee() {
+    inquirer.prompt({
+        type: "input",
+        name: "employee",
+        message: "Add employee name"
+    })
+        .then(function (result) {
+            db.query(`INSERT INTO employees ?`, result, (req, res) => {
+                console.table(res);
+            });
+        })
+};
+function updateRoll(){
+    inquirer.prompt({
+        type: "choices",
+        name: "roll",
+        message: "Update employee roll"
+    })
+        .then(function (result) {
+            db.query(`INSERT INTO departments ?`, result, (req, res) => {
+                console.table(res);
+            });
+        })
+};
 
 init();
