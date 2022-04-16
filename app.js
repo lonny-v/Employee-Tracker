@@ -1,154 +1,168 @@
-const inquirer = require("inquirer");
 const db = require('./db/connection');
+const { listenerCount } = require('process');
 const table = require('console.table');
+const inquirer = require("inquirer");
 
-// Express middleware
-// app.use(express.urlencoded({ extended: false }));
-// app.use(express.json());
 
-function init() {
-    function options() {
+
+const init = () => {
+    const options = () => {
         inquirer.prompt([
             {
                 type: 'list',
-                name: 'option',
+                name: 'options',
                 choices:
-                    [
-                        "view all departments",
-                        "view all roles",
-                        "view all employees",
-                        "add a department",
-                        "add a role",
-                        "add an employee",
-                        "update an employee role"
-                    ]
+                [
+                    'View all departments',
+                    'View all roles', 
+                    'View all employees',
+                    'Add a department',
+                    'Add a role',
+                    'Add an employee',
+                    'Update an employee role' 
+                ]
             }
-        ])
-            .then(function (result) {
-                switch (result.options) {
-                    case "view all departments":
-                        viewDepartments();
-                        break;
-                    case "view all roles":
-                        viewRoles();
-                        break;
-                    case "view all employees":
-                        viewEmployees();
-                        break;
-                    case "add a department":
-                        addDepartment();
-                        break;
-                    case "add a roll":
-                        addRoll();
-                        break;
-                    case "add a employee":
-                        addEmployee();
-                        break;
-                    case "update an employee roll":
-                        updateRoll();
-                        break;
-                }
-            })
+        ]).then(function(result) {
+            switch (result.options) {
+                case 'View all departments':
+                    viewDepartments();
+                    break;
+                case 'View all roles':
+                    viewRoles();
+                    break;
+                case 'View all employees':
+                    viewEmployees();
+                    break;
+                case 'Add a department':
+                    addDepartment();
+                    break;
+                case 'Add a role':
+                    addRole();
+                    break;
+                case 'Add an employee':
+                    addEmployee();
+                    break;
+                case 'Update an employee role':
+                    updateRole();
+                    break
+            }
+        })
     }
     options();
 };
 
-function viewDepartments() {
-    db.query(`SELECT * FROM departments`, (err, rows) => {
-        if (err) {
+
+const viewDepartments = () => {
+    const sql = `SELECT * FROM departments`;
+    db.query(sql, (err, rows) => {
+        if(err) {
             console.log(err.message);
             return;
         }
+        console.table(rows);
         init();
-    })
-};
-function viewRoles() {
-    db.query(`SELECT * FROM roles`, (err, rows) => {
-        console.table(rows);
-        init()
     });
 };
-function viewEmployees() {
-    db.query(`SELECT * FROM demployees`, (err, rows) => {
+
+const viewEmployees = () => {
+    // const sql = `SELECT *
+    // FROM employees
+    // INNER JOIN roles
+    // ON employees.salary_id = salary`;
+    const sql = `SELECT * FROM employees`;
+
+    db.query(sql, (err, rows) => {
+        if(err) {
+            console.log(err.message);
+            return;
+        }
         console.table(rows);
+        init();
     });
 };
-function addDepartment() {
-    inquirer.prompt({
-        type: "input",
-        name: "department",
-        message: "Add department name"
+
+const viewRoles = () => {
+    const sql = `SELECT *
+    FROM roles
+    LEFT JOIN departments
+    ON roles.department_id = departments.id`;
+    db.query(sql, (err, rows) => {
+        if(err) {
+            console.log(err.message);
+            return;
+        }
+        console.table(rows);
+        init();
+    });
+};
+
+const addDepartment = () => {
+        inquirer.prompt({
+        type: 'input',
+        message: 'Please add department name'
     })
-        .then(function (result) {
-            db.query(`INSERT INTO departments ?`, result, (err, rows) => {
-                console.table(rows);
-            });
+    .then(function (result) {
+        db.query(`INSERT INTO  departments ?`, result, (req, res) => {
+            console.table(res)
         })
+    })
 };
-function addRoll() {
+
+const addEmployee = () => {
     inquirer.prompt([
         {
-            type: "input",
-            name: "role",
-            message: "Add the name of the roll"
+            type: 'input',
+            message: 'Please enter employee first name'
         },
         {
-            type: "input",
-            name: "roleSalary",
-            message: "Add the salary for this role"
+            type: 'input',
+            message:'Please enter employee last name'
         },
         {
-            type: "input",
-            name: "roleDepartment",
-            message: "Enter the department id for this role"
+            type: 'input',
+            message:'Please enter employee role'
+        },
+        {
+            type: 'input',
+            message: 'Please enter employee manager ID'
         }
     ])
-        .then(function (result) {
-            db.query(`INSERT INTO roles ?`, result, (err, rows) => {
-                console.table(rows);
-            });
+    .then(function (result) {
+        db.query(`INSERT INTO  employees ?`, result, (req, res) => {
+            console.table(res)
         })
+    })
 };
-function addEmployee() {
+
+const addRole = () => {
     inquirer.prompt([
         {
-            type: "input",
-            name: "employeeFirst",
-            message: "Add employee's first name"
+            type: 'input',
+            message: 'Please add role'
         },
         {
-            type: "input",
-            name: "employeeLast",
-            message: "Add employee's last name"
+            input: 'input',
+            message: 'Please input the salary for this role'
         },
         {
-            type: "input",
-            name: "employeeRole",
-            message: "Add employee's role"
-        },
-        {
-            type: "input",
-            name: "employeeManager",
-            message: "Add the manager's id that this employee will report to",
-        },
+            type: 'input',
+            message: 'Please enter Department ID for role'
+        }
+            
     ])
-        .then(function (result) {
-            db.query(`INSERT INTO employees ?`, result, (err, rows) => {
-                console.table(rows);
-            });
+    .then(function (result) {
+        db.query(`INSERT INTO  roles ?`, result, (req, res) => {
+            console.table(res)
         })
-};
-function updateRoll() {
-    inquirer.prompt({
-        type: "choices",
-        name: "roll",
-        message: "Update employee role"
     })
-        .then(function (result) {
-            db.query(`INSERT INTO departments ?`, result, (err, rows) => {
-                console.table(rows);
-            });
-        })
 };
+
+const updateRole = () => {
+    inquirer.prompt({
+        type: 'choices',
+        message: 'Please update employee role'
+    })
+};
+
 
 init();
