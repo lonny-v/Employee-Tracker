@@ -96,16 +96,25 @@ const viewRoles = () => {
     });
 };
 
-const addDepartment = () => {
-        inquirer.prompt({
-        type: 'input',
-        message: 'Please add department name'
-    })
-    .then(function (result) {
-        db.query(`INSERT INTO  departments ?`, result, (req, res) => {
-            console.table(res)
-        })
-    })
+function addDepartment() {
+    inquirer.prompt([
+        {
+            type: 'input',
+            name: 'new_department',
+            message: 'What is the new department called?'
+        }
+    ]).then(input => {
+        const sql = `INSERT INTO departments(department) VALUES (?)`;
+        const params = input.new_department;
+        db.query(sql, params, (err, result) => {
+            if(err) {
+                console.log(err);
+                return;
+            }
+            console.log(`Added ${params} to the database`);
+            restart();
+        });
+    });
 };
 
 const addEmployee = () => {
