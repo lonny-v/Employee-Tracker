@@ -1,10 +1,14 @@
+DROP DATABASE IF EXISTS employee_tracker;
+CREATE DATABASE employee_tracker;
+USE employee_tracker;
+
 DROP TABLE IF EXISTS departments;
 DROP TABLE IF EXISTS roles;
 DROP TABLE IF EXISTS employees;
 
 CREATE TABLE departments (
     id INTEGER AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(30) NOT NULL,
+    title VARCHAR(30) NOT NULL,
 );
 
 CREATE TABLE roles (
@@ -12,7 +16,7 @@ CREATE TABLE roles (
     title VARCHAR(30) NOT NULL,
     salary DECIMAL(10, 2) NOT NULL,
     department_id INTEGER,
-    CONSTRAINT fk_dept FOREIGN KEY (department_id) REFERENCES departments(id),
+    CONSTRAINT fk_dept FOREIGN KEY (department_id) REFERENCES departments(id) ON DELETE SET NULL,
 ); 
 
 CREATE TABLE employees (
@@ -20,8 +24,6 @@ CREATE TABLE employees (
     first_name VARCHAR(30) NOT NULL,
     last_name VARCHAR(30) NOT NULL,
     role_id INTEGER NOT NULL,
-    salary_id INTEGER NOT NULL,
-    CONSTRAINT fk_roll_id FOREIGN KEY (role_id) REFERENCES roles(id),
-    CONSTRAINT fk_title_id FOREIGN KEY (id) REFERENCES roles(title),
-    CONSTRAINT fk_salary FOREIGN KEY (salary_id) REFERENCES roles(salary),
+    manager_id INTEGER NOT NULL,
+    CONSTRAINT fk_role_id FOREIGN KEY (role_id) REFERENCES roles(id) ON DELETE SET NULL,
 );
