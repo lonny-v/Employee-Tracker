@@ -12,17 +12,17 @@ const init = () => {
                 type: 'list',
                 name: 'options',
                 choices:
-                [
-                    'View all departments',
-                    'View all roles', 
-                    'View all employees',
-                    'Add a department',
-                    'Add a role',
-                    'Add an employee',
-                    'Update an employee role' 
-                ]
+                    [
+                        'View all departments',
+                        'View all roles',
+                        'View all employees',
+                        'Add a department',
+                        'Add a role',
+                        'Add an employee',
+                        'Update an employee role'
+                    ]
             }
-        ]).then(function(result) {
+        ]).then(function (result) {
             switch (result.options) {
                 case 'View all departments':
                     viewDepartments();
@@ -55,7 +55,7 @@ const init = () => {
 const viewDepartments = () => {
     const sql = `SELECT * FROM departments`;
     db.query(sql, (err, rows) => {
-        if(err) {
+        if (err) {
             console.log(err.message);
             return;
         }
@@ -64,13 +64,28 @@ const viewDepartments = () => {
     });
 };
 
-const viewEmployees = () => {
-    // const sql = `SELECT *
-    // FROM employees
-    // INNER JOIN roles
-    // ON employees.salary_id = salary`;
-    const sql = `SELECT * FROM employees`;
+function viewEmployees() {
+    const sql = `SELECT e.id, e.first_name, e.last_name,
+                roles.title, departments.title, roles.salary,
+                concat(m.first_name, ' ', m.last_name) manager
+                FROM employees e
+                INNER JOIN roles ON e.role_id = roles.id
+                INNER JOIN departments ON roles.department_id = departments.id
+                LEFT JOIN employees m ON m.id = e.manager_id`;
+    db.query(sql, (err, rows) => {
+        if (err) {
+            console.log(err.message);
+            return;
+        }
+        console.table(rows);
+        init();
+    });
+};
 
+function viewRoles() {
+    const sql = `SELECT roles.id, roles.title, roles.salary, departments.title
+                FROM roles
+                LEFT JOIN departments ON roles.department_id = departments.id`;
     db.query(sql, (err, rows) => {
         if(err) {
             console.log(err.message);
@@ -81,20 +96,6 @@ const viewEmployees = () => {
     });
 };
 
-const viewRoles = () => {
-    const sql = `SELECT *
-    FROM roles
-    LEFT JOIN departments
-    ON roles.department_id = departments.id`;
-    db.query(sql, (err, rows) => {
-        if(err) {
-            console.log(err.message);
-            return;
-        }
-        console.table(rows);
-        init();
-    });
-};
 
 function addDepartment() {
     inquirer.prompt([
@@ -104,15 +105,16 @@ function addDepartment() {
             message: 'What is the new department called?'
         }
     ]).then(input => {
-        const sql = `INSERT INTO departments(department) VALUES (?)`;
+        const sql = `INSERT INTO departments(title) VALUES(?)`;
         const params = input.new_department;
         db.query(sql, params, (err, result) => {
-            if(err) {
+            if (err) {
                 console.log(err);
                 return;
             }
+
             console.log(`Added ${params} to the database`);
-            restart();
+            init();
         });
     });
 };
@@ -121,49 +123,71 @@ const addEmployee = () => {
     inquirer.prompt([
         {
             type: 'input',
+            name: 'first_name',
             message: 'Please enter employee first name'
         },
         {
             type: 'input',
-            message:'Please enter employee last name'
+            name: 'last_name',
+            message: 'Please enter employee last name'
         },
         {
             type: 'input',
-            message:'Please enter employee role'
+            name: 'role_id',
+            message: 'Please enter employee role'
         },
         {
             type: 'input',
+            name: 'manager_id',
             message: 'Please enter employee manager ID'
         }
     ])
-    .then(function (result) {
-        db.query(`INSERT INTO  employees ?`, result, (req, res) => {
-            console.table(res)
-        })
-    })
+        .then(input => {
+            const sql = `INSERT INTO employees(first_name, last_name, role_id, manager_id) VALUES (?,?,?,?)`;
+            const params = [input.first_name, input.last_name, input.role_id, input.manager_id];
+            db.query(sql, params, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+                console.log(`Added ${params[0]} ${params[1]} to the database`);
+                init();
+            });
+        });
 };
 
 const addRole = () => {
     inquirer.prompt([
         {
             type: 'input',
+            name: 'title',
             message: 'Please add role'
         },
         {
             input: 'input',
+            name: 'salary',
             message: 'Please input the salary for this role'
         },
         {
             type: 'input',
+            name: 'department_id',
             message: 'Please enter Department ID for role'
         }
-            
+
     ])
-    .then(function (result) {
-        db.query(`INSERT INTO  roles ?`, result, (req, res) => {
-            console.table(res)
-        })
-    })
+        .then(input => {
+            const sql = `INSERT INTO roles(title, salary, department_id) VALUES(?,?,?)`;
+            const params = [input.title, input.salary, input.department_id];
+            db.query(sql, params, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    return;
+                }
+
+                console.log(`Added ${params[0]} to the database`);
+                init();
+            });
+        });
 };
 
 const updateRole = () => {
